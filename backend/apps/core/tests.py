@@ -36,3 +36,23 @@ class TestAutenticazione(TestCase):
 
         response_dashboard = self.client.get(reverse("pagina_saluto"))
         self.assertEqual(response_dashboard.status_code, 403)
+
+    def test_registrazione_player(self):
+        response = self.client.post(
+            reverse("register_view"),
+            {"username": "luigi", "password": "PasswordSicura123!"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["ruolo"], "player")
+
+    def test_registrazione_admin_bootstrap(self):
+        response = self.client.post(
+            reverse("register_view"),
+            {"username": "master", "password": "PasswordSicura123!"},
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["ruolo"], "admin")

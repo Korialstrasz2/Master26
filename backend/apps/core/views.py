@@ -1,6 +1,8 @@
 import socket
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
@@ -67,7 +69,50 @@ def login_view(request):
         )
 
     login(request, user)
-    return Response({"dettaglio": "Accesso effettuato", "utente": user.get_username()})
+    return Response(
+        {
+            "dettaglio": "Accesso effettuato",
+            "utente": user.get_username(),
+            "ruolo": "admin" if (user.is_staff or user.is_superuser) else "player",
+        }
+    )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def register_view(request):
+    username = request.data.get("username", "").strip()
+    password = request.data.get("password", "")
+
+    if not username or not password:
+        return Response(
+            {"dettaglio": "Username e password sono obbligatori"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    User = get_user_model()
+    if User.objects.filter(username=username).exists():
+        return Response(
+            {"dettaglio": "Username già in uso"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    is_admin = username == getattr(settings, "ADMIN_BOOTSTRAP_USERNAME", "master")
+    user = User.objects.create_user(
+        username=username,
+        password=password,
+        is_staff=is_admin,
+        is_superuser=is_admin,
+    )
+
+    return Response(
+        {
+            "dettaglio": "Account creato con successo",
+            "utente": user.get_username(),
+            "ruolo": "admin" if is_admin else "player",
+        },
+        status=status.HTTP_201_CREATED,
+    )
 
 
 @api_view(["POST"])
@@ -80,4 +125,11 @@ def logout_view(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def me_view(request):
-    return Response({"utente": request.user.get_username()})
+    return Response(
+        {
+            "utente": request.user.get_username(),
+            "ruolo": "admin"
+            if (request.user.is_staff or request.user.is_superuser)
+            else "player",
+        }
+    )
