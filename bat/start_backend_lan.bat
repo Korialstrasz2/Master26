@@ -8,13 +8,14 @@ set "START_LOG=%~dp0start_log.txt"
 
 REM Move to repository root (folder that contains this .bat in \bat\)
 cd /d "%~dp0.." >> "%START_LOG%" 2>&1
+set "REPO_ROOT=%CD%"
 
 set "PYTHON_EXE=python"
-if exist ".venv\Scripts\python.exe" (
-  set "PYTHON_EXE=.venv\Scripts\python.exe"
+if exist "%REPO_ROOT%\.venv\Scripts\python.exe" (
+  set "PYTHON_EXE=%REPO_ROOT%\.venv\Scripts\python.exe"
 )
 
-for /f "usebackq delims=" %%I in (`powershell -NoProfile -Command "(Get-CimInstance Win32_NetworkAdapterConfiguration ^| Where-Object { $_.IPEnabled } ^| ForEach-Object { $_.IPAddress } ^| Where-Object { $_ -match '^[0-9]+\.' -and $_ -ne '127.0.0.1' -and $_ -notlike '169.254*' } ^| Select-Object -First 1)"`) do (
+for /f "usebackq delims=" %%I in (`powershell -NoProfile -Command "$ErrorActionPreference='SilentlyContinue'; $ip = Get-CimInstance Win32_NetworkAdapterConfiguration ^| Where-Object { $_.IPEnabled } ^| ForEach-Object { $_.IPAddress } ^| Where-Object { $_ -match '^(?:\d{1,3}\.){3}\d{1,3}$' -and $_ -ne '127.0.0.1' -and $_ -notlike '169.254.*' } ^| Select-Object -First 1; if ($ip) { $ip }"`) do (
   if not defined LOCAL_IP set "LOCAL_IP=%%I"
 )
 if not defined LOCAL_IP set "LOCAL_IP=YOUR_LOCAL_IP"
