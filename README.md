@@ -79,6 +79,30 @@ npm run dev
 Frontend disponibile su:
 - `http://localhost:3000`
 
+
+## Autenticazione (produzione-ready)
+
+Il sito ora richiede autenticazione via **sessione Django** (cookie HttpOnly + CSRF).
+
+Endpoint principali backend:
+- `GET /auth/csrf/` → imposta cookie CSRF
+- `POST /auth/login/` → login con `username` + `password`
+- `POST /auth/logout/` → logout
+- `GET /auth/me/` → utente corrente
+- `GET /` → endpoint protetto (solo utenti autenticati)
+
+Per creare il primo utente:
+
+```bash
+cd backend
+python manage.py createsuperuser
+```
+
+Frontend:
+- imposta `NEXT_PUBLIC_API_BASE_URL` (default `http://127.0.0.1:8000`)
+- se non autenticato, mostra form login
+- se autenticato, mostra area protetta
+
 ## Gestione settings Django
 
 Il modulo settings è organizzato così:
