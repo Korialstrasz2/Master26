@@ -1,6 +1,7 @@
 import socket
 
 from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -20,6 +21,11 @@ def _ottieni_ip_server(request):
             return sock.getsockname()[0]
     except OSError:
         return "127.0.0.1"
+
+
+@ensure_csrf_cookie
+def welcome_page(request):
+    return render(request, "welcome.html")
 
 
 @api_view(["GET"])
