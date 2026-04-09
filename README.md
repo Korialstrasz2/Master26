@@ -1,1 +1,116 @@
-# Master26
+# Master26 - Django + Next.js Starter
+
+Struttura full-stack pronta per sviluppo locale e futura produzione, con backend Django e frontend React/Next.js + shadcn/ui + Tailwind CSS.
+
+## Stack tecnico
+
+- **Backend:** Django, Django REST Framework, CORS headers, WhiteNoise
+- **Frontend:** React, Next.js (App Router), Tailwind CSS, shadcn/ui
+- **Deploy readiness:** Gunicorn, Uvicorn, Psycopg, Celery/Redis (già in `requirements.txt`)
+
+## Struttura progetto
+
+```text
+Master26/
+├── .venv/
+├── additional_data_and_tools/
+├── apis/
+├── backend/
+│   ├── apps/core/
+│   ├── config/settings/
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── dev.py
+│   │   └── prod.py
+│   ├── templates/
+│   └── manage.py
+├── database_backups/
+├── exports/
+├── frontend/
+│   ├── src/app/
+│   ├── src/components/ui/
+│   └── tailwind.config.ts
+├── media/
+├── tools/
+├── .gitignore
+└── requirements.txt
+```
+
+## Quick start backend (Django)
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cd backend
+python manage.py migrate
+python manage.py runserver
+```
+
+Hello world backend disponibile su:
+- `http://127.0.0.1:8000/` → JSON di saluto.
+
+## Quick start frontend (Next.js)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend disponibile su:
+- `http://localhost:3000`
+
+## Gestione settings Django
+
+Il modulo settings è organizzato così:
+
+- `config.settings.base`: configurazione condivisa
+- `config.settings.dev`: configurazione sviluppo
+- `config.settings.prod`: configurazione produzione
+
+Default locale in `manage.py`: `config.settings.dev`.
+
+## Metodo di comunicazione frontend ↔ backend
+
+Best practice raccomandata: usare **un metodo client unico** (es. `chiamaBackend(payload)`), che invia un JSON strutturato con header semantico, ad esempio:
+
+```json
+{
+  "header": {
+    "tipo_chiamata": "query",
+    "servizio": "utenti",
+    "azione": "lista"
+  },
+  "body": {
+    "filtri": {
+      "attivo": true
+    }
+  }
+}
+```
+
+Il backend interpreta `header.tipo_chiamata`, `header.servizio` e `header.azione` per instradare la logica applicativa.
+
+## Best practices (team)
+
+1. **Naming convention in italiano:**
+   - variabili: `snake_case` in italiano (`nome_utente`, `data_creazione`)
+   - funzioni: verbo + contesto (`calcola_totale`, `invia_notifica`)
+   - classi: `PascalCase` (`GestoreOrdini`, `ServizioPagamento`)
+
+2. **Separazione responsabilità:**
+   - backend: logica, validazioni, autorizzazioni
+   - frontend: presentazione, stato UI, UX
+
+3. **Configurazioni sensibili:**
+   - usare `.env` per segreti, host, credenziali
+   - non committare mai segreti in repository
+
+4. **API contracts stabili:**
+   - documentare ogni payload JSON
+   - versionare endpoint e contratti quando cambiano
+
+5. **Qualità codice:**
+   - lint/format automatici
+   - test minimi per endpoint e componenti critici
