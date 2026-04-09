@@ -2,26 +2,13 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
+import { MainMenu } from "@/components/app/main-menu";
+import { SkeletonLayout } from "@/components/app/skeleton-layout";
 import { Button } from "@/components/ui/button";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
 type StatoAutenticazione = "caricamento" | "autenticato" | "anonimo";
-
-const VOCI_LATERALI = [
-  "Menu",
-  "Combat",
-  "PG",
-  "Negozio",
-  "Skill",
-  "Lore",
-  "Guide",
-  "Mappa",
-  "Inventario",
-  "Quest",
-  "Social",
-  "Eventi",
-];
 
 export default function HomePage() {
   const [username, setUsername] = useState("");
@@ -223,7 +210,7 @@ export default function HomePage() {
                 onChange={(event) => setPassword(event.target.value)}
                 required
               />
-              <Button type="submit">Accedi</Button>
+              <Button type="submit">Entra nel Mondo</Button>
             </form>
           </section>
 
@@ -270,75 +257,13 @@ export default function HomePage() {
   const isMaster = localStorage.getItem("isMaster") === "true";
 
   return (
-    <main className="min-h-screen bg-[#17110a] text-amber-100">
-      <header className="fixed inset-x-0 top-0 z-30 border-b border-amber-800/60 bg-slate-950/95 px-6 py-2 backdrop-blur">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4">
-          <nav className="flex items-center gap-2">
-            <Button className="bg-amber-700 text-slate-950 hover:bg-amber-500">Dadi</Button>
-            <Button className="bg-amber-700 text-slate-950 hover:bg-amber-500">Competenze</Button>
-          </nav>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="rounded-full border border-amber-700/80 px-3 py-1">{utente}</span>
-            <Button className="bg-rose-700 text-white hover:bg-rose-600" onClick={onLogout}>
-              Logout
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <aside
-        onMouseEnter={() => setSidebarAperta(true)}
-        onMouseLeave={() => setSidebarAperta(false)}
-        className={`fixed left-0 top-[49px] z-20 h-[calc(100vh-49px)] border-r border-amber-800/60 bg-slate-950/95 p-2 transition-all duration-300 ${
-          sidebarAperta ? "w-56" : "w-14"
-        }`}
-      >
-        <div className="flex h-full flex-col gap-2 overflow-hidden">
-          {VOCI_LATERALI.map((voce) => (
-            <button
-              key={voce}
-              className="rounded-md border border-amber-800/80 bg-[#2d2115] px-3 py-2 text-left text-sm font-bold uppercase tracking-wide text-amber-200 hover:bg-amber-700/25"
-              type="button"
-            >
-              {sidebarAperta ? voce : voce.slice(0, 1)}
-            </button>
-          ))}
-        </div>
-      </aside>
-
-      <section className={`pt-20 transition-all duration-300 ${sidebarAperta ? "pl-60" : "pl-16"}`}>
-        <div className="mx-auto max-w-5xl p-6">
-          <h1 className="text-3xl font-black uppercase tracking-[0.12em] text-amber-300">Main Menu</h1>
-          <p className="mt-2 text-sm text-amber-100/80">Benvenuto nella skeleton dell'app principale.</p>
-          {messaggio ? <p className="mt-2 text-xs text-amber-200/75">{messaggio}</p> : null}
-
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <Button disabled className="h-20 bg-amber-700/90 text-slate-950 hover:bg-amber-600 disabled:opacity-80">
-              Seleziona PG
-            </Button>
-            <Button
-              disabled
-              className="h-20 bg-amber-700/90 text-slate-950 hover:bg-amber-600 disabled:opacity-80"
-            >
-              Impostazioni Utente
-            </Button>
-            {isMaster ? (
-              <a
-                href={endpoint.admin}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-20 items-center justify-center rounded-md bg-amber-500 font-semibold text-slate-950 transition hover:bg-amber-400"
-              >
-                Admin
-              </a>
-            ) : (
-              <Button disabled className="h-20 bg-slate-700 text-slate-300 disabled:opacity-70">
-                Admin (solo master)
-              </Button>
-            )}
-          </div>
-        </div>
-      </section>
-    </main>
+    <SkeletonLayout
+      utente={utente}
+      sidebarAperta={sidebarAperta}
+      setSidebarAperta={setSidebarAperta}
+      onLogout={onLogout}
+    >
+      <MainMenu isMaster={isMaster} adminUrl={endpoint.admin} messaggio={messaggio} />
+    </SkeletonLayout>
   );
 }

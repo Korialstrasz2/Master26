@@ -151,7 +151,7 @@ Default locale in `manage.py`: `config.settings.dev`.
 
 ## Skeleton app dopo login (frontend)
 
-Dopo il login, l'utente entra nella struttura principale sempre presente chiamata **skeleton**:
+Dopo il login (click su **Entra nel Mondo** con credenziali valide), l'utente entra automaticamente nel **Main Menu** all'interno della struttura principale sempre presente chiamata **skeleton**:
 
 - **Top bar fissa** sempre visibile con:
   - quick link `Dadi`
@@ -159,7 +159,7 @@ Dopo il login, l'utente entra nella struttura principale sempre presente chiamat
   - nome utente sulla destra
 - **Side bar sinistra** con **12 pulsanti** di navigazione (auto-collapse dopo 3 secondi):
   - `Menu`, `Combat`, `PG`, `Negozio`, `Skill`, `Lore`, `Guide`, `Mappa`, `Inventario`, `Quest`, `Social`, `Eventi`
-- Le pagine dell'app (incluso il **Main Menu**) sono componenti renderizzati **dentro** questa skeleton.
+- Le pagine dell'app (incluso il **Main Menu** e in futuro tutte le altre) sono componenti renderizzati **dentro** questa skeleton.
 
 ### Main Menu (placeholder attuale)
 
