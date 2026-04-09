@@ -60,9 +60,10 @@ Backend disponibile su:
 
 Cosa fa:
 1. esegue `git pull`
-2. rileva automaticamente un IP IPv4 locale e stampa l'URL LAN corretto
-3. usa `.venv\Scripts\python.exe` se disponibile (evita errori tipo `ModuleNotFoundError: No module named "rest_framework"`)
-4. avvia Django su `0.0.0.0:8000` (accessibile dai dispositivi nella stessa LAN)
+2. esegue automaticamente `python manage.py migrate` (evita errori tipo `no such table: django_session`)
+3. rileva automaticamente un IP IPv4 locale e stampa l'URL LAN corretto
+4. usa `.venv\Scripts\python.exe` se disponibile (evita errori tipo `ModuleNotFoundError: No module named "rest_framework"`)
+5. avvia Django su `0.0.0.0:8000` (accessibile dai dispositivi nella stessa LAN)
 
 Quando apri `http://IP_LOCALE_DEL_PC:8000/`, la risposta include:
 - `messaggio`: `Hello World, <ip_server>`
