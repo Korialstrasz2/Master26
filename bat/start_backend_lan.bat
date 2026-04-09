@@ -42,7 +42,7 @@ if "%LOCAL_IP_FOUND%"=="1" (
   echo Access from other devices: http://%LOCAL_IP%:8000/
 ) else (
   echo WARNING: Unable to auto-detect LAN IPv4 address.
-  echo Server will still run; use your PC IPv4 manually (for example from `ipconfig`) to access from other devices.
+  echo Server will still run; use your PC IPv4 manually ^(for example from ipconfig^) to access from other devices.
   echo Local access: http://127.0.0.1:8000/
 )
 echo.>> "%START_LOG%"
