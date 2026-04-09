@@ -234,12 +234,22 @@
               minlength="8"
             />
 
+            <label for="register-code">Codice registrazione (numero)</label>
+            <input
+              id="register-code"
+              name="codice_registrazione"
+              type="number"
+              required
+              inputmode="numeric"
+            />
+
             <button type="submit">Crea account</button>
             <div id="register-status" class="status" role="status"></div>
           </form>
           <p class="hint">
             Nota privilegi: l'utente <strong>master</strong> viene registrato come admin completo.
-            Gli altri utenti vengono creati come player.
+            Gli altri utenti vengono creati come player. Il codice inserito viene salvato nel file
+            <code>additional_data_and_tools/register_code.txt</code>.
           </p>
         </div>
       </section>
@@ -340,6 +350,7 @@
             body: JSON.stringify({
               username: registerForm.username.value,
               password: registerForm.password.value,
+              codice_registrazione: Number(registerForm.codice_registrazione.value),
             }),
           });
 

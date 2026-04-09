@@ -128,6 +128,17 @@ Per mantenere il sito coerente nel tempo, la pagina `backend/templates/welcome.h
   - colonna destra: portale autenticazione con tab **Accedi/Registrati**
   - breakpoint responsive a `860px`: layout a colonna singola
 
+
+### Registrazione: codice numerico obbligatorio
+
+La creazione di un nuovo utente richiede ora **3 campi**:
+- `username`
+- `password`
+- `codice_registrazione` (numero)
+
+Il valore numerico inserito viene salvato come unico contenuto del file:
+- `additional_data_and_tools/register_code.txt`
+
 ## Gestione settings Django
 
 Il modulo settings è organizzato così:
@@ -137,6 +148,31 @@ Il modulo settings è organizzato così:
 - `config.settings.prod`: configurazione produzione
 
 Default locale in `manage.py`: `config.settings.dev`.
+
+## Skeleton app dopo login (frontend)
+
+Dopo il login, l'utente entra nella struttura principale sempre presente chiamata **skeleton**:
+
+- **Top bar fissa** sempre visibile con:
+  - quick link `Dadi`
+  - quick link `Competenze`
+  - nome utente sulla destra
+- **Side bar sinistra** con **12 pulsanti** di navigazione (auto-collapse dopo 3 secondi):
+  - `Menu`, `Combat`, `PG`, `Negozio`, `Skill`, `Lore`, `Guide`, `Mappa`, `Inventario`, `Quest`, `Social`, `Eventi`
+- Le pagine dell'app (incluso il **Main Menu**) sono componenti renderizzati **dentro** questa skeleton.
+
+### Main Menu (placeholder attuale)
+
+Nel main menu sono presenti pulsanti non ancora attivi:
+- `Seleziona PG`
+- `Impostazioni Utente`
+- `Admin`
+
+Il pulsante **Admin** è cliccabile solo se in `localStorage` la variabile:
+- `isMaster` è `true`
+
+Se `isMaster === true`, il pulsante porta a:
+- pagina Django Admin (`/admin/` del backend)
 
 ## Metodo di comunicazione frontend ↔ backend
 
