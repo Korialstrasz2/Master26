@@ -24,6 +24,8 @@ Master26/
 │   │   └── prod.py
 │   ├── templates/
 │   └── manage.py
+├── bat/
+│   └── start_backend_lan.bat
 ├── database_backups/
 ├── exports/
 ├── frontend/
@@ -49,6 +51,20 @@ python manage.py runserver
 
 Hello world backend disponibile su:
 - `http://127.0.0.1:8000/` → JSON di saluto.
+
+### Avvio rapido su rete locale (Windows)
+
+È disponibile lo script:
+- `bat/start_backend_lan.bat`
+
+Cosa fa:
+1. esegue `git pull`
+2. avvia Django su `0.0.0.0:8000` (accessibile dai dispositivi nella stessa LAN)
+
+Quando apri `http://IP_LOCALE_DEL_PC:8000/`, la risposta include:
+- `messaggio`: `Hello World, <ip_server>`
+- `ip_server`
+- `ip_client`
 
 ## Quick start frontend (Next.js)
 
