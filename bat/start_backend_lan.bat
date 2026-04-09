@@ -37,7 +37,20 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/2] Starting Django server on local network...
+echo [2/3] Applying Django migrations...
+echo [2/3] Applying Django migrations...>> "%START_LOG%"
+cd backend >> "%START_LOG%" 2>&1
+"%PYTHON_EXE%" manage.py migrate >> "%START_LOG%" 2>&1
+if errorlevel 1 (
+  echo.
+  echo Django migrate failed. Check migration errors in bat\start_log.txt.
+  >> "%START_LOG%" echo Django migrate failed. Check migration errors in bat\start_log.txt.
+  pause
+  exit /b 1
+)
+
+echo.
+echo [3/3] Starting Django server on local network...
 if "%LOCAL_IP_FOUND%"=="1" (
   echo Access from other devices: http://%LOCAL_IP%:8000/
 ) else (
@@ -46,7 +59,7 @@ if "%LOCAL_IP_FOUND%"=="1" (
   echo Local access: http://127.0.0.1:8000/
 )
 echo.>> "%START_LOG%"
-echo [2/2] Starting Django server on local network...>> "%START_LOG%"
+echo [3/3] Starting Django server on local network...>> "%START_LOG%"
 if "%LOCAL_IP_FOUND%"=="1" (
   echo Access from other devices: http://%LOCAL_IP%:8000/>> "%START_LOG%"
 ) else (
@@ -63,7 +76,6 @@ if not exist ".venv\Scripts\python.exe" (
   echo WARNING: .venv not found. Using system Python; dependencies may be missing.>> "%START_LOG%"
 )
 
-cd backend >> "%START_LOG%" 2>&1
 "%PYTHON_EXE%" manage.py runserver 0.0.0.0:8000 >> "%START_LOG%" 2>&1
 
 endlocal
