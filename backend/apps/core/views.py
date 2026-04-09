@@ -1,4 +1,5 @@
 import socket
+from pathlib import Path
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
@@ -84,10 +85,19 @@ def login_view(request):
 def register_view(request):
     username = request.data.get("username", "").strip()
     password = request.data.get("password", "")
+    codice_registrazione_raw = request.data.get("codice_registrazione", "")
 
-    if not username or not password:
+    if not username or not password or codice_registrazione_raw in {"", None}:
         return Response(
-            {"dettaglio": "Username e password sono obbligatori"},
+            {"dettaglio": "Username, password e codice registrazione sono obbligatori"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        codice_registrazione = int(str(codice_registrazione_raw).strip())
+    except (TypeError, ValueError):
+        return Response(
+            {"dettaglio": "Il codice registrazione deve essere un numero valido"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -106,6 +116,10 @@ def register_view(request):
             is_staff=is_admin,
             is_superuser=is_admin,
         )
+
+        cartella_dati = Path(settings.BASE_DIR).parent / "additional_data_and_tools"
+        cartella_dati.mkdir(parents=True, exist_ok=True)
+        (cartella_dati / "register_code.txt").write_text(f"{codice_registrazione}", encoding="utf-8")
     except IntegrityError:
         return Response(
             {"dettaglio": "Username già in uso"},
