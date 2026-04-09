@@ -25,8 +25,8 @@ if not defined LOCAL_IP (
   set "LOCAL_IP_FOUND=1"
 )
 
-echo [1/2] Pulling latest changes...
-echo [1/2] Pulling latest changes...>> "%START_LOG%"
+echo [1/3] Pulling latest changes...
+echo [1/3] Pulling latest changes...>> "%START_LOG%"
 git pull >> "%START_LOG%" 2>&1
 if errorlevel 1 (
   echo.
@@ -68,7 +68,7 @@ if "%LOCAL_IP_FOUND%"=="1" (
   echo Local access: http://127.0.0.1:8000/>> "%START_LOG%"
 )
 
-if not exist ".venv\Scripts\python.exe" (
+if not exist "%REPO_ROOT%\.venv\Scripts\python.exe" (
   echo.
   echo WARNING: .venv not found. Using system Python; dependencies may be missing.
   echo Run bat\setup_venv.bat once if you see ModuleNotFoundError errors.
