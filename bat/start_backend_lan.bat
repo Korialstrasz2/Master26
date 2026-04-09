@@ -15,10 +15,15 @@ if exist "%REPO_ROOT%\.venv\Scripts\python.exe" (
   set "PYTHON_EXE=%REPO_ROOT%\.venv\Scripts\python.exe"
 )
 
-for /f "usebackq delims=" %%I in (`powershell -NoProfile -Command "$ErrorActionPreference='SilentlyContinue'; $ip = Get-CimInstance Win32_NetworkAdapterConfiguration ^| Where-Object { $_.IPEnabled } ^| ForEach-Object { $_.IPAddress } ^| Where-Object { $_ -match '^(?:\d{1,3}\.){3}\d{1,3}$' -and $_ -ne '127.0.0.1' -and $_ -notlike '169.254.*' } ^| Select-Object -First 1; if ($ip) { $ip }"`) do (
+for /f "usebackq delims=" %%I in (`powershell -NoProfile -Command "$ErrorActionPreference='SilentlyContinue'; $ip = Get-NetIPAddress -AddressFamily IPv4 ^| Where-Object { $_.IPAddress -ne '127.0.0.1' -and $_.IPAddress -notlike '169.254.*' -and $_.PrefixOrigin -ne 'WellKnown' } ^| Sort-Object -Property SkipAsSource,InterfaceMetric ^| Select-Object -ExpandProperty IPAddress -First 1; if (-not $ip) { $ip = Get-CimInstance Win32_NetworkAdapterConfiguration ^| Where-Object { $_.IPEnabled } ^| ForEach-Object { $_.IPAddress } ^| Where-Object { $_ -match '^(?:\d{1,3}\.){3}\d{1,3}$' -and $_ -ne '127.0.0.1' -and $_ -notlike '169.254.*' } ^| Select-Object -First 1 }; if ($ip) { $ip }"`) do (
   if not defined LOCAL_IP set "LOCAL_IP=%%I"
 )
-if not defined LOCAL_IP set "LOCAL_IP=YOUR_LOCAL_IP"
+if not defined LOCAL_IP (
+  set "LOCAL_IP=127.0.0.1"
+  set "LOCAL_IP_FOUND=0"
+) else (
+  set "LOCAL_IP_FOUND=1"
+)
 
 echo [1/2] Pulling latest changes...
 echo [1/2] Pulling latest changes...>> "%START_LOG%"
@@ -33,10 +38,22 @@ if errorlevel 1 (
 
 echo.
 echo [2/2] Starting Django server on local network...
-echo Access from other devices: http://%LOCAL_IP%:8000/
+if "%LOCAL_IP_FOUND%"=="1" (
+  echo Access from other devices: http://%LOCAL_IP%:8000/
+) else (
+  echo WARNING: Unable to auto-detect LAN IPv4 address.
+  echo Server will still run; use your PC IPv4 manually (for example from `ipconfig`) to access from other devices.
+  echo Local access: http://127.0.0.1:8000/
+)
 echo.>> "%START_LOG%"
 echo [2/2] Starting Django server on local network...>> "%START_LOG%"
-echo Access from other devices: http://%LOCAL_IP%:8000/>> "%START_LOG%"
+if "%LOCAL_IP_FOUND%"=="1" (
+  echo Access from other devices: http://%LOCAL_IP%:8000/>> "%START_LOG%"
+) else (
+  echo WARNING: Unable to auto-detect LAN IPv4 address.>> "%START_LOG%"
+  echo Use your PC IPv4 manually ^(from ipconfig^) for LAN access.>> "%START_LOG%"
+  echo Local access: http://127.0.0.1:8000/>> "%START_LOG%"
+)
 
 if not exist ".venv\Scripts\python.exe" (
   echo.
