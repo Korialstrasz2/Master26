@@ -49,8 +49,9 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Hello world backend disponibile su:
-- `http://127.0.0.1:8000/` → JSON di saluto.
+Backend disponibile su:
+- `http://127.0.0.1:8000/` → pagina welcome/login (UI server-side).
+- `http://127.0.0.1:8000/api/saluto/` → JSON protetto di saluto.
 
 ### Avvio rapido su rete locale (Windows)
 
@@ -89,7 +90,8 @@ Endpoint principali backend:
 - `POST /auth/login/` → login con `username` + `password`
 - `POST /auth/logout/` → logout
 - `GET /auth/me/` → utente corrente
-- `GET /` → endpoint protetto (solo utenti autenticati)
+- `GET /` → pagina welcome/login
+- `GET /api/saluto/` → endpoint protetto (solo utenti autenticati)
 
 Per creare il primo utente:
 
