@@ -3,6 +3,7 @@ import socket
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.db import IntegrityError
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
@@ -98,12 +99,23 @@ def register_view(request):
         )
 
     is_admin = username == getattr(settings, "ADMIN_BOOTSTRAP_USERNAME", "master")
-    user = User.objects.create_user(
-        username=username,
-        password=password,
-        is_staff=is_admin,
-        is_superuser=is_admin,
-    )
+    try:
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            is_staff=is_admin,
+            is_superuser=is_admin,
+        )
+    except IntegrityError:
+        return Response(
+            {"dettaglio": "Username già in uso"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception:
+        return Response(
+            {"dettaglio": "Errore interno durante la registrazione"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
     return Response(
         {

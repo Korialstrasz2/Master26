@@ -105,6 +105,28 @@ Frontend:
 - se non autenticato, mostra form login
 - se autenticato, mostra area protetta
 
+### Riferimento UI pagina login (coerenza visiva)
+
+Per mantenere il sito coerente nel tempo, la pagina `backend/templates/welcome.html` usa la seguente palette e layout:
+
+- **Palette colori (CSS custom properties):**
+  - `--bg: #17110a`
+  - `--panel: rgba(40, 28, 18, 0.92)`
+  - `--panel-border: rgba(201, 162, 92, 0.5)`
+  - `--text: #f7ecd7`
+  - `--muted: #dfcbab`
+  - `--accent: #c6953f`
+  - `--accent-strong: #e0b35f`
+  - `--danger: #ff9d8c`
+  - `--success: #9de2a7`
+
+- **Layout pagina:**
+  - contenitore principale `.layout` a due colonne (`1.15fr 0.85fr`) con gap `1.25rem`
+  - due pannelli `.panel` con bordo dorato, sfondo scuro semi-trasparente e ombra morbida
+  - colonna sinistra: titolo e descrizione narrativa del gioco
+  - colonna destra: portale autenticazione con tab **Accedi/Registrati**
+  - breakpoint responsive a `860px`: layout a colonna singola
+
 ## Gestione settings Django
 
 Il modulo settings è organizzato così:

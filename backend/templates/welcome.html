@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cronache d'Argento · Accesso</title>
+    <title>Portale del Gioco · Accesso</title>
     <style>
       :root {
         --bg: #17110a;
@@ -170,16 +170,16 @@
   <body>
     <main class="layout">
       <section class="panel">
-        <h1>Cronache d'Argento</h1>
+        <h1>Portale del Gioco</h1>
         <p class="intro">
-          Benvenuto nel gioco :). Accedi ed entra nel mondo: foreste antiche, taverne vive,
-          missioni leggendarie e compagni di viaggio ti aspettano.
+          Benvenuto nel gioco :). Accedi ed entra nel mondo per avventure di mesi e anni che
+          cambieranno la tua vita in meglio o, se giochi con Stefano, in peggio.
         </p>
         <ul>
-          <li>Crea il tuo eroe e forgia la tua storia</li>
-          <li>Scopri mappe, città e segreti del regno</li>
-          <li>Affronta eventi, mostri e decisioni epiche</li>
-          <li>Collabora con il tuo gruppo in tempo reale</li>
+          <li>
+            Affronta capre della neve, draghi, e orconi con i pistoni, esplora rovine, ed impara
+            abilità come pioggia di meteore.
+          </li>
         </ul>
         <div class="callout">
           Non hai un account? Nessun problema: usa la scheda <strong>Registrati</strong> qui a
@@ -258,6 +258,20 @@
         element.className = `status ${type || ""}`.trim();
       }
 
+      async function leggiRispostaApi(response) {
+        const contentType = response.headers.get("content-type") || "";
+
+        if (contentType.includes("application/json")) {
+          return response.json();
+        }
+
+        const testoErrore = await response.text();
+        const messaggio = `Errore server (${response.status}). Risposta non JSON ricevuta.`;
+        throw new Error(
+          testoErrore?.trim() ? `${messaggio} Controlla i log backend.` : messaggio
+        );
+      }
+
       document.querySelectorAll(".tab").forEach((tab) => {
         tab.addEventListener("click", () => {
           const paneId = tab.dataset.pane;
@@ -293,7 +307,7 @@
             }),
           });
 
-          const data = await response.json();
+          const data = await leggiRispostaApi(response);
           if (!response.ok) {
             throw new Error(data.dettaglio || "Accesso fallito.");
           }
@@ -329,7 +343,7 @@
             }),
           });
 
-          const data = await response.json();
+          const data = await leggiRispostaApi(response);
           if (!response.ok) {
             throw new Error(data.dettaglio || "Registrazione fallita.");
           }
