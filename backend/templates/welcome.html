@@ -308,12 +308,7 @@
           return `${baseUrl}/main-menu`;
         }
 
-        const isDevBackendPort = window.location.port === "8000";
-        if (isDevBackendPort) {
-          return `${window.location.protocol}//${window.location.hostname}:3000/main-menu`;
-        }
-
-        return "/main-menu";
+        return `${window.location.protocol}//${window.location.hostname}:3000/main-menu`;
       }
 
       loginForm.addEventListener("submit", async (event) => {
