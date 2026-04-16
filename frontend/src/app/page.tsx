@@ -29,7 +29,7 @@ export default function HomePage() {
       register: `${API_BASE_URL}/auth/register/`,
       logout: `${API_BASE_URL}/auth/logout/`,
       me: `${API_BASE_URL}/auth/me/`,
-      dashboard: `${API_BASE_URL}/api/saluto/`,
+      dashboard: `${API_BASE_URL}/`,
       admin: `${API_BASE_URL}/admin/`,
     }),
     [],
@@ -80,18 +80,15 @@ export default function HomePage() {
   };
 
   const caricaDashboard = async () => {
-    try {
-      const response = await fetch(endpoint.dashboard, { credentials: "include" });
-      if (!response.ok) {
-        setMessaggio("");
-        return;
-      }
+    const response = await fetch(endpoint.dashboard, { credentials: "include" });
 
-      const data = (await response.json()) as { messaggio?: string };
-      setMessaggio(data.messaggio ?? "");
-    } catch {
+    if (!response.ok) {
       setMessaggio("");
+      return;
     }
+
+    const data = (await response.json()) as { messaggio: string };
+    setMessaggio(data.messaggio);
   };
 
   const onLogin = async (event: FormEvent<HTMLFormElement>) => {
