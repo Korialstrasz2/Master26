@@ -62,28 +62,39 @@ export default function HomePage() {
   const onLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrore("");
+    setMessaggio("");
 
-    const csrfToken = leggiCsrfCookie();
+    try {
+      const csrfToken = leggiCsrfCookie();
 
-    const response = await fetch(endpoint.login, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken,
-      },
-      body: JSON.stringify({ username, password }),
-    });
+      const response = await fetch(endpoint.login, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (!response.ok) {
-      setErrore("Credenziali non valide.");
-      return;
+      if (!response.ok) {
+        setErrore("Credenziali non valide.");
+        return;
+      }
+
+      const meResponse = await fetch(endpoint.me, { credentials: "include" });
+      if (!meResponse.ok) {
+        setErrore("Login riuscito ma sessione non valida. Controlla CORS/cookie del backend.");
+        return;
+      }
+
+      const meData = (await meResponse.json()) as { ruolo: string };
+      localStorage.setItem("isMaster", String(meData.ruolo === "admin"));
+      setPassword("");
+      router.replace("/main-menu");
+    } catch {
+      setErrore("Impossibile completare il login. Verifica che frontend e backend siano avviati.");
     }
-
-    const data = (await response.json()) as { ruolo: string };
-    localStorage.setItem("isMaster", String(data.ruolo === "admin"));
-    setPassword("");
-    router.push("/main-menu");
   };
 
   const onRegister = async (event: FormEvent<HTMLFormElement>) => {
