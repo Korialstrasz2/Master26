@@ -1,16 +1,27 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
-import { MainMenu } from "@/components/app/main-menu";
-import { SkeletonLayout } from "@/components/app/skeleton-layout";
 import { Button } from "@/components/ui/button";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+const ottieniApiBaseUrl = () => {
+  const configuredUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+  if (configuredUrl) {
+    return configuredUrl;
+  }
 
-type StatoAutenticazione = "caricamento" | "autenticato" | "anonimo";
+  if (typeof window !== "undefined") {
+    return `${window.location.protocol}//${window.location.hostname}:8000`;
+  }
+
+  return "http://127.0.0.1:8000";
+};
+
+type StatoAutenticazione = "caricamento" | "anonimo";
 
 export default function HomePage() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [codiceRegistrazione, setCodiceRegistrazione] = useState("");
@@ -19,18 +30,13 @@ export default function HomePage() {
   const [errore, setErrore] = useState("");
   const [messaggio, setMessaggio] = useState("");
   const [stato, setStato] = useState<StatoAutenticazione>("caricamento");
-  const [utente, setUtente] = useState<string | null>(null);
-  const [sidebarAperta, setSidebarAperta] = useState(true);
 
   const endpoint = useMemo(
     () => ({
-      csrf: `${API_BASE_URL}/auth/csrf/`,
-      login: `${API_BASE_URL}/auth/login/`,
-      register: `${API_BASE_URL}/auth/register/`,
-      logout: `${API_BASE_URL}/auth/logout/`,
-      me: `${API_BASE_URL}/auth/me/`,
-      dashboard: `${API_BASE_URL}/`,
-      admin: `${API_BASE_URL}/admin/`,
+      csrf: `${ottieniApiBaseUrl()}/auth/csrf/`,
+      login: `${ottieniApiBaseUrl()}/auth/login/`,
+      register: `${ottieniApiBaseUrl()}/auth/register/`,
+      me: `${ottieniApiBaseUrl()}/auth/me/`,
     }),
     [],
   );
@@ -42,11 +48,9 @@ export default function HomePage() {
         const meResponse = await fetch(endpoint.me, { credentials: "include" });
 
         if (meResponse.ok) {
-          const meData = (await meResponse.json()) as { utente: string; ruolo: string };
-          setUtente(meData.utente);
+          const meData = (await meResponse.json()) as { ruolo: string };
           localStorage.setItem("isMaster", String(meData.ruolo === "admin"));
-          setStato("autenticato");
-          await caricaDashboard();
+          router.replace("/main-menu");
           return;
         }
       } catch {
@@ -57,20 +61,7 @@ export default function HomePage() {
     };
 
     void inizializza();
-  }, [endpoint.csrf, endpoint.me]);
-
-  useEffect(() => {
-    if (stato !== "autenticato") {
-      return;
-    }
-
-    setSidebarAperta(true);
-    const timer = window.setTimeout(() => {
-      setSidebarAperta(false);
-    }, 3000);
-
-    return () => window.clearTimeout(timer);
-  }, [stato]);
+  }, [endpoint.csrf, endpoint.me, router]);
 
   const leggiCsrfCookie = () => {
     const cookie = document.cookie
@@ -79,45 +70,42 @@ export default function HomePage() {
     return cookie?.split("=")[1] ?? "";
   };
 
-  const caricaDashboard = async () => {
-    const response = await fetch(endpoint.dashboard, { credentials: "include" });
-
-    if (!response.ok) {
-      setMessaggio("");
-      return;
-    }
-
-    const data = (await response.json()) as { messaggio: string };
-    setMessaggio(data.messaggio);
-  };
-
   const onLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrore("");
+    setMessaggio("");
 
-    const csrfToken = leggiCsrfCookie();
+    try {
+      const csrfToken = leggiCsrfCookie();
 
-    const response = await fetch(endpoint.login, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken,
-      },
-      body: JSON.stringify({ username, password }),
-    });
+      const response = await fetch(endpoint.login, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (!response.ok) {
-      setErrore("Credenziali non valide.");
-      return;
+      if (!response.ok) {
+        setErrore("Credenziali non valide.");
+        return;
+      }
+
+      const meResponse = await fetch(endpoint.me, { credentials: "include" });
+      if (!meResponse.ok) {
+        setErrore("Login riuscito ma sessione non valida. Controlla CORS/cookie del backend.");
+        return;
+      }
+
+      const meData = (await meResponse.json()) as { ruolo: string };
+      localStorage.setItem("isMaster", String(meData.ruolo === "admin"));
+      setPassword("");
+      router.replace("/main-menu");
+    } catch {
+      setErrore("Impossibile completare il login. Verifica che frontend e backend siano avviati.");
     }
-
-    const data = (await response.json()) as { utente: string; ruolo: string };
-    setUtente(data.utente);
-    localStorage.setItem("isMaster", String(data.ruolo === "admin"));
-    setStato("autenticato");
-    setPassword("");
-    await caricaDashboard();
   };
 
   const onRegister = async (event: FormEvent<HTMLFormElement>) => {
@@ -158,24 +146,6 @@ export default function HomePage() {
     setCodiceRegistrazione("");
   };
 
-  const onLogout = async () => {
-    const csrfToken = leggiCsrfCookie();
-    await fetch(endpoint.logout, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "X-CSRFToken": csrfToken,
-      },
-    });
-
-    setStato("anonimo");
-    setUtente(null);
-    setMessaggio("");
-    setUsername("");
-    setPassword("");
-    localStorage.removeItem("isMaster");
-  };
-
   if (stato === "caricamento") {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl items-center justify-center p-6 text-amber-100">
@@ -184,86 +154,71 @@ export default function HomePage() {
     );
   }
 
-  if (stato === "anonimo") {
-    return (
-      <main className="mx-auto flex min-h-screen max-w-4xl flex-col justify-center gap-8 p-6 text-amber-100">
-        <h1 className="text-4xl font-black uppercase tracking-[0.14em] text-amber-300">Portale Master26</h1>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <section className="rounded-2xl border border-amber-700/60 bg-slate-950/80 p-5 shadow-xl shadow-amber-900/25">
-            <h2 className="mb-4 text-xl font-semibold text-amber-200">Accedi</h2>
-            <form onSubmit={onLogin} className="flex flex-col gap-3">
-              <input
-                className="rounded border border-amber-800 bg-slate-900 p-2"
-                placeholder="Username"
-                autoComplete="username"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                required
-              />
-              <input
-                className="rounded border border-amber-800 bg-slate-900 p-2"
-                placeholder="Password"
-                autoComplete="current-password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
-              <Button type="submit">Entra nel Mondo</Button>
-            </form>
-          </section>
-
-          <section className="rounded-2xl border border-amber-700/60 bg-slate-950/80 p-5 shadow-xl shadow-amber-900/25">
-            <h2 className="mb-4 text-xl font-semibold text-amber-200">Nuovo utente</h2>
-            <form onSubmit={onRegister} className="flex flex-col gap-3">
-              <input
-                className="rounded border border-amber-800 bg-slate-900 p-2"
-                placeholder="Username"
-                autoComplete="username"
-                value={usernameRegistrazione}
-                onChange={(event) => setUsernameRegistrazione(event.target.value)}
-                required
-              />
-              <input
-                className="rounded border border-amber-800 bg-slate-900 p-2"
-                placeholder="Password"
-                autoComplete="new-password"
-                type="password"
-                value={passwordRegistrazione}
-                onChange={(event) => setPasswordRegistrazione(event.target.value)}
-                required
-              />
-              <input
-                className="rounded border border-amber-800 bg-slate-900 p-2"
-                placeholder="Codice registrazione (numero)"
-                type="number"
-                inputMode="numeric"
-                value={codiceRegistrazione}
-                onChange={(event) => setCodiceRegistrazione(event.target.value)}
-                required
-              />
-              <Button type="submit">Registra utente</Button>
-            </form>
-          </section>
-        </div>
-
-        {errore ? <p className="text-red-400">{errore}</p> : null}
-        {messaggio ? <p className="text-emerald-300">{messaggio}</p> : null}
-      </main>
-    );
-  }
-
-  const isMaster = localStorage.getItem("isMaster") === "true";
-
   return (
-    <SkeletonLayout
-      utente={utente}
-      sidebarAperta={sidebarAperta}
-      setSidebarAperta={setSidebarAperta}
-      onLogout={onLogout}
-    >
-      <MainMenu isMaster={isMaster} adminUrl={endpoint.admin} messaggio={messaggio} />
-    </SkeletonLayout>
+    <main className="mx-auto flex min-h-screen max-w-4xl flex-col justify-center gap-8 p-6 text-amber-100">
+      <h1 className="text-4xl font-black uppercase tracking-[0.14em] text-amber-300">Portale Master26</h1>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <section className="rounded-2xl border border-amber-700/60 bg-slate-950/80 p-5 shadow-xl shadow-amber-900/25">
+          <h2 className="mb-4 text-xl font-semibold text-amber-200">Accedi</h2>
+          <form onSubmit={onLogin} className="flex flex-col gap-3">
+            <input
+              className="rounded border border-amber-800 bg-slate-900 p-2"
+              placeholder="Username"
+              autoComplete="username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              required
+            />
+            <input
+              className="rounded border border-amber-800 bg-slate-900 p-2"
+              placeholder="Password"
+              autoComplete="current-password"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+            <Button type="submit">Entra nel Mondo</Button>
+          </form>
+        </section>
+
+        <section className="rounded-2xl border border-amber-700/60 bg-slate-950/80 p-5 shadow-xl shadow-amber-900/25">
+          <h2 className="mb-4 text-xl font-semibold text-amber-200">Nuovo utente</h2>
+          <form onSubmit={onRegister} className="flex flex-col gap-3">
+            <input
+              className="rounded border border-amber-800 bg-slate-900 p-2"
+              placeholder="Username"
+              autoComplete="username"
+              value={usernameRegistrazione}
+              onChange={(event) => setUsernameRegistrazione(event.target.value)}
+              required
+            />
+            <input
+              className="rounded border border-amber-800 bg-slate-900 p-2"
+              placeholder="Password"
+              autoComplete="new-password"
+              type="password"
+              value={passwordRegistrazione}
+              onChange={(event) => setPasswordRegistrazione(event.target.value)}
+              required
+            />
+            <input
+              className="rounded border border-amber-800 bg-slate-900 p-2"
+              placeholder="Codice registrazione (numero)"
+              type="number"
+              inputMode="numeric"
+              value={codiceRegistrazione}
+              onChange={(event) => setCodiceRegistrazione(event.target.value)}
+              required
+            />
+            <Button type="submit">Registra utente</Button>
+          </form>
+        </section>
+      </div>
+
+      {errore ? <p className="text-red-400">{errore}</p> : null}
+      {messaggio ? <p className="text-emerald-300">{messaggio}</p> : null}
+    </main>
   );
 }
