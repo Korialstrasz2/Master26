@@ -29,7 +29,8 @@ def _ottieni_ip_server(request):
 
 @ensure_csrf_cookie
 def welcome_page(request):
-    return render(request, "welcome.html")
+    frontend_url = getattr(settings, "FRONTEND_BASE_URL", "").strip()
+    return render(request, "welcome.html", {"frontend_url": frontend_url})
 
 
 @api_view(["GET"])
