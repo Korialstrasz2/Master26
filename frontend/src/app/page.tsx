@@ -5,7 +5,18 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+const ottieniApiBaseUrl = () => {
+  const configuredUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+  if (configuredUrl) {
+    return configuredUrl;
+  }
+
+  if (typeof window !== "undefined") {
+    return `${window.location.protocol}//${window.location.hostname}:8000`;
+  }
+
+  return "http://127.0.0.1:8000";
+};
 
 type StatoAutenticazione = "caricamento" | "anonimo";
 
@@ -22,10 +33,10 @@ export default function HomePage() {
 
   const endpoint = useMemo(
     () => ({
-      csrf: `${API_BASE_URL}/auth/csrf/`,
-      login: `${API_BASE_URL}/auth/login/`,
-      register: `${API_BASE_URL}/auth/register/`,
-      me: `${API_BASE_URL}/auth/me/`,
+      csrf: `${ottieniApiBaseUrl()}/auth/csrf/`,
+      login: `${ottieniApiBaseUrl()}/auth/login/`,
+      register: `${ottieniApiBaseUrl()}/auth/register/`,
+      me: `${ottieniApiBaseUrl()}/auth/me/`,
     }),
     [],
   );
