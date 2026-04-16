@@ -217,3 +217,25 @@ Il backend interpreta `header.tipo_chiamata`, `header.servizio` e `header.azione
 5. **Qualità codice:**
    - lint/format automatici
    - test minimi per endpoint e componenti critici
+
+## Guida mentale rapida (per chi arriva da Django template + JS)
+
+Se vieni da un flusso classico `urls.py -> views.py -> template.html + script.js`, in questo repo la versione equivalente è:
+
+- routing pagina frontend: `frontend/src/app/.../page.tsx`
+- logica/interfaccia frontend: componenti React/Next.js (`.tsx`)
+- logica backend e dati: endpoint Django (`/auth/*`, `/api/*`)
+
+In pratica:
+- **prima**: Django renderizzava quasi tutto l'HTML pagina
+- **ora**: Next.js rende la UI, Django espone API/autenticazione
+
+Percorso consigliato per creare una nuova schermata:
+1. crea/aggiorna endpoint backend Django
+2. definisci contratto JSON input/output
+3. crea route Next.js con `page.tsx`
+4. collega la pagina alle API Django (con CSRF/sessione)
+5. rifinisci componenti UI e stato frontend
+
+Per una spiegazione estesa passo-passo, vedi:
+- `additional_data_and_tools/django_to_nextjs_guide.md`
