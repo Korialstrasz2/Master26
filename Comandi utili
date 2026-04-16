@@ -1,0 +1,63 @@
+Create a virtual environment
+    python3 -m venv .venv
+    Creates an isolated Python environment for the project.
+
+Activate the virtual environment (macOS/Linux)
+    source .venv/bin/activate
+    Enables the venv so python/pip use project-local packages.
+
+Install dependencies
+    pip install -r requirements.txt
+    Installs all packages required by the app.
+
+Show installed packages
+    pip list
+    Quick check of what’s installed in your current environment.
+
+Create new migrations
+    python manage.py makemigrations
+    Generates migration files from model changes.
+
+Apply migrations to DB
+    python manage.py migrate
+    Applies pending migrations (schema updates).
+
+Show migration status
+    python manage.py showmigrations
+    Lists migrations and whether each is applied.
+
+Start development server
+    python manage.py runserver
+    Starts local dev server (default 127.0.0.1:8001).
+
+Start server on custom host/port
+    python manage.py runserver 0.0.0.0:8001
+    Useful for Docker/VM or alternate port testing.
+
+Create admin/superuser
+    python manage.py createsuperuser
+    Creates login for Django admin.
+
+Open Django shell
+    python manage.py shell
+    Interactive Python shell with Django context loaded.
+
+Collect static files
+    python manage.py collectstatic
+    Gathers static assets for production serving.
+
+Run project checks
+    python manage.py check
+    Runs Django system checks for config/model issues.
+
+Run tests
+    python manage.py test
+    Executes Django test suite.
+
+Dump and load DB data (fixtures)
+    python manage.py dumpdata > data.json
+    python manage.py loaddata data.json
+    Export/import DB data for backup/dev seeding.
+
+alexo
+AlexMaster2612
