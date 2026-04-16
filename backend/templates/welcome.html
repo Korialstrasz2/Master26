@@ -339,7 +339,7 @@
             `Bentornato, ${data.utente}. Ruolo: ${data.ruolo}. Sessione attiva. Reindirizzamento...`,
             "ok"
           );
-          window.location.assign("/api/saluto/");
+          window.location.assign(buildMainMenuUrl());
         } catch (error) {
           setStatus(loginStatus, error.message, "error");
         }
