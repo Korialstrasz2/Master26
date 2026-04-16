@@ -324,9 +324,10 @@
 
           setStatus(
             loginStatus,
-            `Bentornato, ${data.utente}. Ruolo: ${data.ruolo}. Sessione attiva.`,
+            `Bentornato, ${data.utente}. Ruolo: ${data.ruolo}. Sessione attiva. Reindirizzamento...`,
             "ok"
           );
+          window.location.assign("/api/saluto/");
         } catch (error) {
           setStatus(loginStatus, error.message, "error");
         }
