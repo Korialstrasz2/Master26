@@ -6,7 +6,18 @@ import { useRouter } from "next/navigation";
 import { MainMenu } from "@/components/app/main-menu";
 import { SkeletonLayout } from "@/components/app/skeleton-layout";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+const ottieniApiBaseUrl = () => {
+  const configuredUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+  if (configuredUrl) {
+    return configuredUrl;
+  }
+
+  if (typeof window !== "undefined") {
+    return `${window.location.protocol}//${window.location.hostname}:8000`;
+  }
+
+  return "http://127.0.0.1:8000";
+};
 
 type StatoPagina = "caricamento" | "pronta";
 
@@ -19,11 +30,11 @@ export default function MainMenuPage() {
 
   const endpoint = useMemo(
     () => ({
-      csrf: `${API_BASE_URL}/auth/csrf/`,
-      logout: `${API_BASE_URL}/auth/logout/`,
-      me: `${API_BASE_URL}/auth/me/`,
-      dashboard: `${API_BASE_URL}/api/saluto/`,
-      admin: `${API_BASE_URL}/admin/`,
+      csrf: `${ottieniApiBaseUrl()}/auth/csrf/`,
+      logout: `${ottieniApiBaseUrl()}/auth/logout/`,
+      me: `${ottieniApiBaseUrl()}/auth/me/`,
+      dashboard: `${ottieniApiBaseUrl()}/api/saluto/`,
+      admin: `${ottieniApiBaseUrl()}/admin/`,
     }),
     [],
   );
