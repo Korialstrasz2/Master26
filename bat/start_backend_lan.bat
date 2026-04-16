@@ -52,20 +52,20 @@ if errorlevel 1 (
 echo.
 echo [3/3] Starting Django server on local network...
 if "%LOCAL_IP_FOUND%"=="1" (
-  echo Access from other devices: http://%LOCAL_IP%:8000/
+  echo Access from other devices: http://%LOCAL_IP%:8001/
 ) else (
   echo WARNING: Unable to auto-detect LAN IPv4 address.
   echo Server will still run; use your PC IPv4 manually ^(for example from ipconfig^) to access from other devices.
-  echo Local access: http://127.0.0.1:8000/
+  echo Local access: http://127.0.0.1:8001/
 )
 echo.>> "%START_LOG%"
 echo [3/3] Starting Django server on local network...>> "%START_LOG%"
 if "%LOCAL_IP_FOUND%"=="1" (
-  echo Access from other devices: http://%LOCAL_IP%:8000/>> "%START_LOG%"
+  echo Access from other devices: http://%LOCAL_IP%:8001/>> "%START_LOG%"
 ) else (
   echo WARNING: Unable to auto-detect LAN IPv4 address.>> "%START_LOG%"
   echo Use your PC IPv4 manually ^(from ipconfig^) for LAN access.>> "%START_LOG%"
-  echo Local access: http://127.0.0.1:8000/>> "%START_LOG%"
+  echo Local access: http://127.0.0.1:8001/>> "%START_LOG%"
 )
 
 if not exist "%REPO_ROOT%\.venv\Scripts\python.exe" (
@@ -76,6 +76,6 @@ if not exist "%REPO_ROOT%\.venv\Scripts\python.exe" (
   echo WARNING: .venv not found. Using system Python; dependencies may be missing.>> "%START_LOG%"
 )
 
-"%PYTHON_EXE%" manage.py runserver 0.0.0.0:8000 >> "%START_LOG%" 2>&1
+"%PYTHON_EXE%" manage.py runserver 0.0.0.0:8001 >> "%START_LOG%" 2>&1
 
 endlocal
