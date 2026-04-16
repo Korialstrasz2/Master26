@@ -329,7 +329,10 @@
           );
 
           window.setTimeout(() => {
-            window.location.assign("/api/saluto/");
+            const mainMenuUrl = window.location.hostname === "127.0.0.1"
+              ? "http://127.0.0.1:3000/"
+              : "/";
+            window.location.assign(mainMenuUrl);
           }, 350);
         } catch (error) {
           setStatus(loginStatus, error.message, "error");
