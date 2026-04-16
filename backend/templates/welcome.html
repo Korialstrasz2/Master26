@@ -302,17 +302,13 @@
       function buildMainMenuUrl() {
         const configuredFrontendUrl = "{{ frontend_url|default:''|escapejs }}";
         if (configuredFrontendUrl) {
-          return configuredFrontendUrl.endsWith("/")
-            ? configuredFrontendUrl
-            : `${configuredFrontendUrl}/`;
+          const baseUrl = configuredFrontendUrl.endsWith("/")
+            ? configuredFrontendUrl.slice(0, -1)
+            : configuredFrontendUrl;
+          return `${baseUrl}/main-menu`;
         }
 
-        const isDevBackendPort = window.location.port === "8000";
-        if (isDevBackendPort) {
-          return `${window.location.protocol}//${window.location.hostname}:3000/`;
-        }
-
-        return "/";
+        return `${window.location.protocol}//${window.location.hostname}:3000/main-menu`;
       }
 
       loginForm.addEventListener("submit", async (event) => {
