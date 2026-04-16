@@ -299,6 +299,22 @@
       const loginForm = document.getElementById("login-form");
       const loginStatus = document.getElementById("login-status");
 
+      function buildMainMenuUrl() {
+        const configuredFrontendUrl = "{{ frontend_url|default:''|escapejs }}";
+        if (configuredFrontendUrl) {
+          return configuredFrontendUrl.endsWith("/")
+            ? configuredFrontendUrl
+            : `${configuredFrontendUrl}/`;
+        }
+
+        const isDevBackendPort = window.location.port === "8000";
+        if (isDevBackendPort) {
+          return `${window.location.protocol}//${window.location.hostname}:3000/`;
+        }
+
+        return "/";
+      }
+
       loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         setStatus(loginStatus, "Accesso in corso...");
@@ -329,10 +345,7 @@
           );
 
           window.setTimeout(() => {
-            const mainMenuUrl = window.location.hostname === "127.0.0.1"
-              ? "http://127.0.0.1:3000/"
-              : "/";
-            window.location.assign(mainMenuUrl);
+            window.location.assign(buildMainMenuUrl());
           }, 350);
         } catch (error) {
           setStatus(loginStatus, error.message, "error");
